@@ -1,4 +1,4 @@
-package luzespecular;
+package sala;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
@@ -19,7 +19,7 @@ public class Cena implements GLEventListener, KeyListener {
     private GLU glu;
     private GLUT glut;
     private int tonalizacao = GL2.GL_SMOOTH;
-    private boolean liga = true;
+    private boolean liga = false;
 
     @Override
     public void init(GLAutoDrawable drawable) {
@@ -52,15 +52,19 @@ public class Cena implements GLEventListener, KeyListener {
             ligaLuz();
         }
 
-        gl.glRotatef(angulo, 0.0f, 1.0f, 1.0f);
+        gl.glRotatef(angulo, 0, 1, 0);
 
         //gl.glColor3f(1.0f, 1.0f, 1.0f); // branca
+        gl.glScalef(0.7f, 0.7f, 0.7f);
+
         gl.glPushMatrix();
-        paredes();
+
+        gl.glRotatef(30, 0, 1, 1);
+        desenho();
         gl.glPopMatrix();
 
-        gl.glColor3f(1.0f, 0.5f, 0.0f); // laranja
-        esfera();
+//        gl.glColor3f(1.0f, 0.5f, 0.0f); // laranja
+//        esfera();
         if (liga) {
             desligaluz();
         }
@@ -71,10 +75,67 @@ public class Cena implements GLEventListener, KeyListener {
         gl.glFlush();
     }
 
+    public void desenho() {
+        gl.glPushMatrix();
+        paredes();
+        mesa();
+        abajur();
+        gl.glPopMatrix();
+    }
+
     public void desenhaTexto(GL2 gl, int x, int y, String frase) {
         glut = new GLUT(); //objeto da biblioteca glut
         gl.glRasterPos2f(x, y);
         glut.glutBitmapString(GLUT.BITMAP_8_BY_13, frase);
+    }
+
+    public void cilindro() {
+        gl.glTranslatef(0, 0, -89);
+        glut.glutSolidCylinder(3, 70, 30, 30);
+    }
+
+    public void desenhaCilindro(float x, float y) {
+        gl.glPushMatrix();
+        gl.glTranslatef(x, y, 0f);
+        cilindro();
+        gl.glPopMatrix();
+    }
+
+    public void mesa() {
+        gl.glPushMatrix();
+        gl.glRotatef(90f, -1, 0, 0);
+        gl.glPushMatrix();
+        tampaMesa();
+        pesDaMesa();
+        gl.glPopMatrix();
+        gl.glPopMatrix();
+
+    }
+
+    public void pesDaMesa() {
+        gl.glPushMatrix();
+        gl.glColor3f(1, 0, 0); // branca chao
+        desenhaCilindro(-40, -40);
+        desenhaCilindro(40, -40);
+        desenhaCilindro(-40, 40);
+        desenhaCilindro(40, 40);
+        gl.glPopMatrix();
+    }
+
+    public void tampaMesa() {
+        gl.glPushMatrix();
+        gl.glColor3f(1, 0, 0); // branca chao
+        gl.glTranslatef(0, 0, -20);
+        gl.glScalef(3.8f, 3.5f, 0.1f);
+        cubo();
+        gl.glPopMatrix();
+
+    }
+
+    public void cubo() {
+        gl.glPushMatrix();
+        glut.glutSolidCube(30);
+        gl.glPopMatrix();
     }
 
     private void esfera() {
@@ -92,14 +153,37 @@ public class Cena implements GLEventListener, KeyListener {
 
     private void paredes() {
 
-        gl.glColor3f(0.1f, 1.0f, 1.0f); // branca
-        gl.glTranslatef(0, 0, 10);
-        parede();
+        gl.glPushMatrix();
 
-        gl.glRotatef(45f, 0f, 0f, 10f);
-        gl.glColor3f(0.0f, 1.0f, 1.0f); // branca
+        gl.glPushMatrix();
+        gl.glColor3f(0, 0.5f, 1.0f); // azul parede
         parede();
+        gl.glPopMatrix();
 
+        gl.glPushMatrix();
+        gl.glRotatef(90f, -1, 0, 0);
+        gl.glColor3f(0, 0.5f, 1.0f); // branca chao
+        parede();
+        gl.glPopMatrix();
+
+        gl.glPopMatrix();
+
+    }
+
+    public void abajur() {
+        gl.glPushMatrix();
+        gl.glRotatef(90f, -1, 0, 0);
+        gl.glPushMatrix();
+        baseAbajur();
+        gl.glPopMatrix();
+        gl.glPopMatrix();
+
+    }
+
+    public void baseAbajur() {
+        gl.glPushMatrix();
+        cilindro();
+        gl.glPopMatrix();
     }
 
     public void iluminacaoEspecular() {
@@ -170,7 +254,7 @@ public class Cena implements GLEventListener, KeyListener {
         }
         switch (e.getKeyChar()) {
             case 'r':
-                angulo += 45;
+                angulo += 15;
                 break;
             case 't':
                 tonalizacao = tonalizacao == GL2.GL_SMOOTH ? GL2.GL_FLAT : GL2.GL_SMOOTH;
