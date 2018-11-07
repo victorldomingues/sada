@@ -1,4 +1,4 @@
-
+package luzespecular;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
@@ -54,12 +54,13 @@ public class Cena implements GLEventListener, KeyListener {
 
         gl.glRotatef(angulo, 0.0f, 1.0f, 1.0f);
 
-        gl.glColor3f(1.0f, 1.0f, 1.0f); // branca
-        parede();
+        //gl.glColor3f(1.0f, 1.0f, 1.0f); // branca
+        gl.glPushMatrix();
+        paredes();
+        gl.glPopMatrix();
 
         gl.glColor3f(1.0f, 0.5f, 0.0f); // laranja
         esfera();
-
         if (liga) {
             desligaluz();
         }
@@ -88,28 +89,38 @@ public class Cena implements GLEventListener, KeyListener {
         gl.glVertex3f(-90.0f, -90.0f, -90.0f);
         gl.glEnd();
     }
-    
 
-    public void iluminacaoEspecular(){
-        float luzAmbiente[] = {0.2f, 0.2f, 0.2f, 1.0f}; //cor
-        float luzEspecular[]={1.0f, 1.0f, 1.0f, 1.0f}; //cor
-        float posicaoLuz[]={-50.0f, 0.0f, 100.0f, 1.0f}; //pontual
-                
-        //intensidade da reflexao do material        
-        int especMaterial = 128; 
-        //define a concentracao do brilho
-    	gl.glMateriali(GL2.GL_FRONT, GL2.GL_SHININESS, especMaterial);
+    private void paredes() {
 
-    	//define a reflectância do material
-    	gl.glMaterialfv(  GL2.GL_FRONT, GL2.GL_SPECULAR, luzEspecular, 0);
+        gl.glColor3f(0.1f, 1.0f, 1.0f); // branca
+        gl.glTranslatef(0, 0, 10);
+        parede();
 
-        //define os parâmetros de luz de número 0 (zero)
-    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, luzAmbiente, 0);
-    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, luzEspecular, 0);
-    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, posicaoLuz, 0);
+        gl.glRotatef(45f, 0f, 0f, 10f);
+        gl.glColor3f(0.0f, 1.0f, 1.0f); // branca
+        parede();
+
     }
 
-    
+    public void iluminacaoEspecular() {
+        float luzAmbiente[] = {0.2f, 0.2f, 0.2f, 1.0f}; //cor
+        float luzEspecular[] = {1.0f, 1.0f, 1.0f, 1.0f}; //cor
+        float posicaoLuz[] = {-50.0f, 0.0f, 100.0f, 1.0f}; //pontual
+
+        //intensidade da reflexao do material        
+        int especMaterial = 128;
+        //define a concentracao do brilho
+        gl.glMateriali(GL2.GL_FRONT, GL2.GL_SHININESS, especMaterial);
+
+        //define a reflectância do material
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, luzEspecular, 0);
+
+        //define os parâmetros de luz de número 0 (zero)
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, luzAmbiente, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, luzEspecular, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, posicaoLuz, 0);
+    }
+
     public void ligaLuz() {
         // habilita a definição da cor do material a partir da cor corrente
         gl.glEnable(GL2.GL_COLOR_MATERIAL);
