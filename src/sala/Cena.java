@@ -20,6 +20,7 @@ public class Cena implements GLEventListener, KeyListener {
     private GLUT glut;
     private int tonalizacao = GL2.GL_SMOOTH;
     private boolean liga = false;
+    private boolean wire = false;
 
     @Override
     public void init(GLAutoDrawable drawable) {
@@ -47,11 +48,6 @@ public class Cena implements GLEventListener, KeyListener {
         *
          */
         // criar a cena aqui....
-        if (liga) {
-            iluminacaoEspecular();
-            ligaLuz();
-        }
-
         gl.glRotatef(angulo, 0, 1, 0);
 
         //gl.glColor3f(1.0f, 1.0f, 1.0f); // branca
@@ -65,10 +61,6 @@ public class Cena implements GLEventListener, KeyListener {
 
 //        gl.glColor3f(1.0f, 0.5f, 0.0f); // laranja
 //        esfera();
-        if (liga) {
-            desligaluz();
-        }
-
         ///// Exemplo de Texto        
         //gl.glColor3f(0, 0, 0);
         //desenhaTexto(gl, -95, 90, "Angulo: " + angulo);
@@ -80,6 +72,7 @@ public class Cena implements GLEventListener, KeyListener {
         paredes();
         mesa();
         abajur();
+        tampaAbajur();
         gl.glPopMatrix();
     }
 
@@ -89,15 +82,19 @@ public class Cena implements GLEventListener, KeyListener {
         glut.glutBitmapString(GLUT.BITMAP_8_BY_13, frase);
     }
 
-    public void cilindro() {
-        gl.glTranslatef(0, 0, -89);
-        glut.glutSolidCylinder(3, 70, 30, 30);
+    public void cilindro(float tamanho) {
+        if (!wire) {
+            glut.glutSolidCylinder(3, tamanho, 10, 10);
+
+        } else {
+            glut.glutWireCylinder(3, tamanho, 10, 10);
+        }
     }
 
-    public void desenhaCilindro(float x, float y) {
+    public void desenhaCilindroMesa(float x, float y, float tamanho) {
         gl.glPushMatrix();
         gl.glTranslatef(x, y, 0f);
-        cilindro();
+        cilindro(tamanho);
         gl.glPopMatrix();
     }
 
@@ -105,7 +102,9 @@ public class Cena implements GLEventListener, KeyListener {
         gl.glPushMatrix();
         gl.glRotatef(90f, -1, 0, 0);
         gl.glPushMatrix();
+
         tampaMesa();
+
         pesDaMesa();
         gl.glPopMatrix();
         gl.glPopMatrix();
@@ -115,31 +114,59 @@ public class Cena implements GLEventListener, KeyListener {
     public void pesDaMesa() {
         gl.glPushMatrix();
         gl.glColor3f(1, 0, 0); // branca chao
-        desenhaCilindro(-40, -40);
-        desenhaCilindro(40, -40);
-        desenhaCilindro(-40, 40);
-        desenhaCilindro(40, 40);
+        gl.glTranslatef(0, 0, -89);
+        desenhaCilindroMesa(-40, -40, 70);
+        desenhaCilindroMesa(40, -40, 70);
+        desenhaCilindroMesa(-40, 40, 70);
+        desenhaCilindroMesa(40, 40, 70);
         gl.glPopMatrix();
     }
 
     public void tampaMesa() {
         gl.glPushMatrix();
+        if (liga) {
+            iluminacaoEspecular();
+            ligaLuz();
+        }
         gl.glColor3f(1, 0, 0); // branca chao
         gl.glTranslatef(0, 0, -20);
         gl.glScalef(3.8f, 3.5f, 0.1f);
         cubo();
+        if (liga) {
+            desligaluz();
+        }
         gl.glPopMatrix();
 
     }
 
     public void cubo() {
         gl.glPushMatrix();
-        glut.glutSolidCube(30);
+        float s = 30;
+        if (!wire) {
+            glut.glutSolidCube(s);
+        } else {
+            glut.glutWireCube(s);
+        }
         gl.glPopMatrix();
     }
 
     private void esfera() {
-        glut.glutSolidSphere(60, 15, 15);
+        gl.glPushMatrix();
+        gl.glTranslatef(0, 15, 0);
+        gl.glColor3f(1, 0.9f, 0.3f);
+        if (liga) {
+            iluminacaoEspecular();
+            ligaLuz();
+        }
+        if (!wire) {
+            glut.glutSolidSphere(3, 15, 15);
+        } else {
+            glut.glutWireSphere(3, 15, 15);
+        }
+        if (liga) {
+            desligaluz();
+        }
+        gl.glPopMatrix();
     }
 
     private void parede() {
@@ -172,9 +199,16 @@ public class Cena implements GLEventListener, KeyListener {
 
     public void abajur() {
         gl.glPushMatrix();
+        if (liga) {
+            iluminacaoEspecular();
+            ligaLuz();
+        }
         gl.glRotatef(90f, -1, 0, 0);
         gl.glPushMatrix();
         baseAbajur();
+        if (liga) {
+            desligaluz();
+        }
         gl.glPopMatrix();
         gl.glPopMatrix();
 
@@ -182,7 +216,34 @@ public class Cena implements GLEventListener, KeyListener {
 
     public void baseAbajur() {
         gl.glPushMatrix();
-        cilindro();
+        gl.glColor3f(1, 0.9f, 0.3f);
+        gl.glTranslatef(0, 0, -20);
+        cilindro(35);
+        gl.glPopMatrix();
+    }
+
+    public void tampaAbajur() {
+        gl.glPushMatrix();
+        gl.glRotatef(90f, -1, 0, 0);
+        gl.glTranslatef(0, 0, -5);
+        cone();
+        gl.glPopMatrix();
+        gl.glPushMatrix();;
+        esfera();
+        gl.glPopMatrix();
+    }
+
+    public void cone() {
+        gl.glPushMatrix();
+
+        gl.glColor3f(0, 1f, 0f);
+        if (!wire) {
+            glut.glutSolidCone(25, 20, 20, 20);
+
+        } else {
+            glut.glutWireCone(25, 20, 20, 20);
+
+        }
         gl.glPopMatrix();
     }
 
@@ -256,6 +317,9 @@ public class Cena implements GLEventListener, KeyListener {
             case 'r':
                 angulo += 15;
                 break;
+            case 'w':
+                wire = !wire;
+                break;
             case 't':
                 tonalizacao = tonalizacao == GL2.GL_SMOOTH ? GL2.GL_FLAT : GL2.GL_SMOOTH;
                 break;
@@ -274,4 +338,5 @@ public class Cena implements GLEventListener, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
     }
+
 }
